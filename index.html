@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seagull Platform - Shipping Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'seagull-blue': '#1e3a5f',
+                        'seagull-light': '#2d4a6b'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Sidebar -->
+    <div class="fixed left-0 top-0 h-full w-48 bg-seagull-blue text-white z-10">
+        <!-- Logo -->
+        <div class="p-4 border-b border-seagull-light">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-white rounded flex items-center justify-center">
+                    <i class="fas fa-ship text-seagull-blue text-sm"></i>
+                </div>
+                <span class="font-bold text-lg">SEAGULL</span>
+            </div>
+        </div>
+
+        <!-- New Shipment Button -->
+        <div class="p-4">
+            <button id="newShipmentBtn" class="w-full bg-seagull-light hover:bg-opacity-80 text-white py-2 px-4 rounded border border-gray-400 text-sm">
+                <i class="fas fa-plus mr-2"></i>New Shipment
+            </button>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="mt-4">
+            <a href="#" id="dashboardBtn" class="flex items-center px-4 py-3 text-gray-300 hover:bg-seagull-light hover:text-white">
+                <i class="fas fa-home mr-3"></i>Dashboard
+            </a>
+            <a href="#" id="shippersBtn" class="flex items-center px-4 py-3 text-gray-300 hover:bg-seagull-light hover:text-white">
+                <i class="fas fa-users mr-3"></i>Shippers
+            </a>
+            <a href="#" id="consigneesBtn" class="flex items-center px-4 py-3 text-gray-300 hover:bg-seagull-light hover:text-white">
+                <i class="fas fa-user-tie mr-3"></i>Consignees
+            </a>
+            <a href="#" id="shipmentsBtn" class="flex items-center px-4 py-3 bg-seagull-light text-white">
+                <i class="fas fa-ship mr-3"></i>Shipments
+            </a>
+            <a href="#" id="carrierBtn" class="flex items-center px-4 py-3 text-gray-300 hover:bg-seagull-light hover:text-white">
+                <i class="fas fa-truck mr-3"></i>Carrier
+            </a>
+            <a href="#" id="documentsBtn" class="flex items-center px-4 py-3 text-gray-300 hover:bg-seagull-light hover:text-white">
+                <i class="fas fa-file-alt mr-3"></i>Document Templates
+            </a>
+            <a href="#" id="settingsBtn" class="flex items-center px-4 py-3 text-gray-300 hover:bg-seagull-light hover:text-white">
+                <i class="fas fa-cog mr-3"></i>Settings
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-48 min-h-screen">
+        <!-- Shipments List View -->
+        <div id="shipmentsView" class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-semibold text-gray-800">SHIPMENTS</h1>
+                <div class="flex space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Search" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-64">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                    <button id="filtersBtn" class="bg-seagull-blue text-white px-4 py-2 rounded-lg flex items-center">
+                        <i class="fas fa-filter mr-2"></i>Filters
+                    </button>
+                    <button id="boardViewBtn" class="bg-seagull-blue text-white px-4 py-2 rounded-lg flex items-center">
+                        <i class="fas fa-columns mr-2"></i>Board View
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table View -->
+            <div id="tableView" class="bg-white rounded-lg shadow overflow-hidden">
+                <table class="w-full">
+                    <thead class="bg-seagull-blue text-white">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-sm font-medium">ID</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Shipper</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Carrier</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Start Date</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Documents</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Status</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Destination</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50 cursor-pointer shipment-row" data-id="12345">
+                            <td class="px-6 py-4 text-sm">12345</td>
+                            <td class="px-6 py-4 text-sm">Michael Stone</td>
+                            <td class="px-6 py-4 text-sm">Whale LTD</td>
+                            <td class="px-6 py-4 text-sm">05/02/2025</td>
+                            <td class="px-6 py-4 text-sm"><i class="fas fa-file-alt text-gray-600"></i></td>
+                            <td class="px-6 py-4 text-sm">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">PENDING</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm">Los Angeles, CA<br><span class="text-gray-500">9,911,159</span></td>
+                            <td class="px-6 py-4 text-sm">
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 cursor-pointer shipment-row" data-id="12346">
+                            <td class="px-6 py-4 text-sm">12346</td>
+                            <td class="px-6 py-4 text-sm">Michael Stone</td>
+                            <td class="px-6 py-4 text-sm">Whale LTD</td>
+                            <td class="px-6 py-4 text-sm">05/02/2025</td>
+                            <td class="px-6 py-4 text-sm"><i class="fas fa-file-alt text-gray-600"></i></td>
+                            <td class="px-6 py-4 text-sm">
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">IN PROGRESS</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm">Los Angeles, CA<br><span class="text-gray-500">9,911,159</span></td>
+                            <td class="px-6 py-4 text-sm">
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 cursor-pointer shipment-row" data-id="12347">
+                            <td class="px-6 py-4 text-sm">12347</td>
+                            <td class="px-6 py-4 text-sm">Michael Stone</td>
+                            <td class="px-6 py-4 text-sm">Whale LTD</td>
+                            <td class="px-6 py-4 text-sm">05/02/2025</td>
+                            <td class="px-6 py-4 text-sm"><i class="fas fa-file-alt text-gray-600"></i></td>
+                            <td class="px-6 py-4 text-sm">
+                                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">AT CUSTOMS</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm">Los Angeles, CA<br><span class="text-gray-500">9,911,159</span></td>
+                            <td class="px-6 py-4 text-sm">
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 cursor-pointer shipment-row" data-id="12348">
+                            <td class="px-6 py-4 text-sm">12348</td>
+                            <td class="px-6 py-4 text-sm">Michael Stone</td>
+                            <td class="px-6 py-4 text-sm">Whale LTD</td>
+                            <td class="px-6 py-4 text-sm">05/02/2025</td>
+                            <td class="px-6 py-4 text-sm"><i class="fas fa-file-alt text-gray-600"></i></td>
+                            <td class="px-6 py-4 text-sm">
+                                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs">CHANGING CARRIER</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm">Los Angeles, CA<br><span class="text-gray-500">9,911,159</span></td>
+                            <td class="px-6 py-4 text-sm">
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50 cursor-pointer shipment-row" data-id="12349">
+                            <td class="px-6 py-4 text-sm">12349</td>
+                            <td class="px-6 py-4 text-sm">Michael Stone</td>
+                            <td class="px-6 py-4 text-sm">Whale LTD</td>
+                            <td class="px-6 py-4 text-sm">05/02/2025</td>
+                            <td class="px-6 py-4 text-sm"><i class="fas fa-file-alt text-gray-600"></i></td>
+                            <td class="px-6 py-4 text-sm">
+                                <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">COMPLETED</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm">Long Beach, CA<br><span class="text-gray-500">9,133,657</span></td>
+                            <td class="px-6 py-4 text-sm">
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Kanban Board View -->
+            <div id="kanbanView" class="hidden">
+                <div class="flex space-x-4 overflow-x-auto pb-4">
+                    <!-- Pending Column -->
+                    <div class="flex-shrink-0 w-64">
+                        <div class="bg-blue-100 text-blue-800 px-4 py-2 rounded-t-lg font-medium text-center">
+                            PENDING
+                        </div>
+                        <div class="bg-white border border-t-0 rounded-b-lg p-4 min-h-96">
+                            <div class="bg-white border rounded-lg p-4 mb-4 shadow-sm">
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-hashtag text-gray-400 mr-1"></i>
+                                    <span class="text-sm font-medium">12345</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-user text-gray-400 mr-2"></i>
+                                    <span class="text-sm">Michael Stone</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i>
+                                    <span class="text-sm">Los Angeles, CA 9,911,159</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-truck text-gray-400 mr-2"></i>
+                                    <span class="text-sm">Whale LTD</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-thermometer-half text-red-400 mr-2"></i>
+                                    <span class="text-sm">40°F</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- In Progress Column -->
+                    <div class="flex-shrink-0 w-64">
+                        <div class="bg-green-100 text-green-800 px-4 py-2 rounded-t-lg font-medium text-center">
+                            IN PROGRESS
+                        </div>
+                        <div class="bg-white border border-t-0 rounded-b-lg p-4 min-h-96">
+                            <div class="bg-white border rounded-lg p-4 mb-4 shadow-sm">
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-hashtag text-gray-400 mr-1"></i>
+                                    <span class="text-sm font-medium">12346</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-user text-gray-400 mr-2"></i>
+                                    <span class="text-sm">Michael Stone</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i>
+                                    <span class="text-sm">Los Angeles, CA 9,911,159</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-truck text-gray-400 mr-2"></i>
+                                    <span class="text-sm">Whale LTD</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-thermometer-half text-red-400 mr-2"></i>
+                                    <span class="text-sm">40°F</span>
+                                </div>
+                            </div>
+                            <div class="bg-white border rounded-lg p-4 mb-4 shadow-sm">
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-hashtag text-gray-400 mr-1"></i>
+                                    <span class="text-sm font-medium">12350</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-user text-gray-400 mr-2"></i>
+                                    <span class="text-sm">John Merit</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i>
+                                    <span class="text-sm">Los Angeles, CA 9,911,159</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-truck text-gray-400 mr-2"></i>
+                                    <span class="text-sm">Whale LTD</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-thermometer-half text-red-400 mr-2"></i>
+                                    <span class="text-sm">40°F</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Changing Carrier Column -->
+                    <div class="flex-shrink-0 w-64">
+                        <div class="bg-purple-100 text-purple-800 px-4 py-2 rounded-t-lg font-medium text-center">
+                            CHANGING CARRIER
+                        </div>
+                        <div class="bg-white border border-t-0 rounded-b-lg p-4 min-h-96">
+                            <div class="bg-white border rounded-lg p-4 mb-4 shadow-sm">
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-hashtag text-gray-400 mr-1"></i>
+                                    <span class="text-sm font-medium">12348</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-user text-gray-400 mr-2"></i>
+                                    <span class="text-sm">Michael Stone</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i>
+                                    <span class="text-sm">Los Angeles, CA 9,911,159</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-truck text-gray-400 mr-2"></i>
+                                    <span class="text-sm">Whale LTD</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-thermometer-half text-red-400 mr-2"></i>
+                                    <span class="text-sm">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- At Customs Column -->
+                    <div class="flex-shrink-0 w-64">
+                        <div class="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-t-lg font-medium text-center">
+                            AT CUSTOMS
+                        </div>
+                        <div class="bg-white border border-t-0 rounded-b-lg p-4 min-h-96">
+                            <div class="bg-white border rounded-lg p-4 mb-4 shadow-sm">
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-hashtag text-gray-400 mr-1"></i>
+                                    <span class="text-sm font-medium">12347</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-user text-gray-400 mr-2"></i>
+                                    <span class="text-sm">John Merit</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i>
+                                    <span class="text-sm">Los Angeles, CA 9,911,159</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-truck text-gray-400 mr-2"></i>
+                                    <span class="text-sm">Whale LTD</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-thermometer-half text-red-400 mr-2"></i>
+                                    <span class="text-sm">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Completed Column -->
+                    <div class="flex-shrink-0 w-64">
+                        <div class="bg-gray-100 text-gray-800 px-4 py-2 rounded-t-lg font-medium text-center">
+                            COMPLETED
+                        </div>
+                        <div class="bg-white border border-t-0 rounded-b-lg p-4 min-h-96">
+                            <div class="bg-white border rounded-lg p-4 mb-4 shadow-sm">
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-hashtag text-gray-400 mr-1"></i>
+                                    <span class="text-sm font-medium">12349</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-user text-gray-400 mr-2"></i>
+                                    <span class="text-sm">John Merit</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i>
+                                    <span class="text-sm">Los Angeles, CA 9,911,159</span>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-truck text-gray-400 mr-2"></i>
+                                    <span class="text-sm">Whale LTD</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-thermometer-half text-red-400 mr-2"></i>
+                                    <span class="text-sm">40°F</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipment Detail View -->
+        <div id="shipmentDetailView" class="p-6 hidden">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center space-x-4">
+                    <button id="backBtn" class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                    </button>
+                    <h1 class="text-2xl font-semibold text-gray-800">SHIPMENT #<span id="shipmentId">12345</span></h1>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="bg-seagull-blue text-white px-4 py-2 rounded-lg">
+                        <i class="fas fa-download mr-2"></i>Generate Documents
+                    </button>
+                    <button class="bg-green-600 text-white px-4 py-2 rounded-lg">
+                        <i class="fas fa-save mr-2"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="grid grid-cols-2 gap-8">
+                    <!-- Left Column -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Client</label>
+                            <input type="text" value="John Merit" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-seagull-blue focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Booking Number</label>
+                            <input type="text" value="165487985546UYhui" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-seagull-blue focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Destination Port</label>
+                            <input type="text" value="Los Angeles" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-seagull-blue focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">TEU</label>
+                            <input type="text" value="9,911,159" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-seagull-blue focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Temperature</label>
+                            <input type="text" value="F 32" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-seagull-blue focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Company</label>
+                            <input type="text" value="Chelan Fresh" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-seagull-blue focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Item</label>
+                            <input type="text" value="lorem ipsum" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-seagull-blue focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">State</label>
+                            <input type="text" value="California" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-seagull-blue focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Commodity</label>
+                            <input type="text" value="lorem ipsum" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-seagull-blue focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Item</label>
+                            <input type="text" value="lorem ipsum" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-seagull-blue focus:border-transparent">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document Upload Section -->
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-800 mb-4">Document Processing</h3>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-seagull-blue transition-colors">
+                            <i class="fas fa-file-pdf text-4xl text-red-500 mb-4"></i>
+                            <p class="text-gray-600 mb-2">Upload PDF Documents</p>
+                            <p class="text-sm text-gray-500">Drag & drop or click to upload invoices, bills of lading</p>
+                            <button class="mt-3 bg-seagull-blue text-white px-4 py-2 rounded-lg text-sm">
+                                Choose Files
+                            </button>
+                        </div>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-seagull-blue transition-colors">
+                            <i class="fas fa-file-excel text-4xl text-green-500 mb-4"></i>
+                            <p class="text-gray-600 mb-2">Upload Excel Files</p>
+                            <p class="text-sm text-gray-500">Import data from spreadsheets for processing</p>
+                            <button class="mt-3 bg-seagull-blue text-white px-4 py-2 rounded-lg text-sm">
+                                Choose Files
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Added uploaded documents list with preview functionality -->
+                    <!-- Uploaded Documents List -->
+                    <div class="mt-6">
+                        <h4 class="text-md font-medium text-gray-800 mb-3">Uploaded Documents</h4>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between p-3 bg-white rounded border hover:shadow-sm">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-file-pdf text-red-500"></i>
+                                        <div>
+                                            <p class="font-medium text-sm">Invoice_12345.pdf</p>
+                                            <p class="text-xs text-gray-500">Uploaded 2 hours ago • 245 KB</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="preview-doc-btn text-seagull-blue hover:text-seagull-light text-sm" data-doc="invoice">
+                                            <i class="fas fa-eye mr-1"></i>Preview
+                                        </button>
+                                        <button class="text-gray-600 hover:text-gray-800 text-sm">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white rounded border hover:shadow-sm">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-file-alt text-blue-500"></i>
+                                        <div>
+                                            <p class="font-medium text-sm">Bill_of_Lading_12345.pdf</p>
+                                            <p class="text-xs text-gray-500">Uploaded 4 hours ago • 189 KB</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="preview-doc-btn text-seagull-blue hover:text-seagull-light text-sm" data-doc="bol">
+                                            <i class="fas fa-eye mr-1"></i>Preview
+                                        </button>
+                                        <button class="text-gray-600 hover:text-gray-800 text-sm">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white rounded border hover:shadow-sm">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-file-excel text-green-500"></i>
+                                        <div>
+                                            <p class="font-medium text-sm">Shipment_Data.xlsx</p>
+                                            <p class="text-xs text-gray-500">Uploaded 6 hours ago • 67 KB</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="preview-doc-btn text-seagull-blue hover:text-seagull-light text-sm" data-doc="excel">
+                                            <i class="fas fa-eye mr-1"></i>Preview
+                                        </button>
+                                        <button class="text-gray-600 hover:text-gray-800 text-sm">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Integration View -->
+        <div id="apiView" class="p-6 hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-semibold text-gray-800">API Integration</h1>
+                <button id="backToShipmentsBtn" class="bg-seagull-blue text-white px-4 py-2 rounded-lg">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Shipments
+                </button>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Platform Integration Options</h2>
+                    <p class="text-gray-600">Choose how to connect your shipper's platform with Seagull</p>
+                </div>
+
+                <!-- Integration Diagram -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-center space-x-8 mb-6">
+                        <div class="bg-seagull-blue text-white p-6 rounded-lg text-center w-48">
+                            <i class="fas fa-ship text-2xl mb-2"></i>
+                            <h3 class="font-semibold">Seagull Platform</h3>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-exchange-alt text-2xl text-blue-500"></i>
+                            <span class="mx-2 text-blue-500 font-medium">API</span>
+                            <i class="fas fa-exchange-alt text-2xl text-blue-500"></i>
+                        </div>
+                        <div class="bg-gray-100 border-2 border-gray-300 p-6 rounded-lg text-center w-48">
+                            <i class="fas fa-building text-2xl mb-2 text-gray-600"></i>
+                            <h3 class="font-semibold text-gray-700">Shipper Platform</h3>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center text-gray-600 mb-6">
+                        <p>Data about orders will be transferred via API automatically</p>
+                    </div>
+                </div>
+
+                <!-- Integration Options -->
+                <div class="grid grid-cols-2 gap-6 mb-8">
+                    <div class="border border-gray-200 rounded-lg p-6">
+                        <h3 class="font-semibold text-lg mb-3 text-seagull-blue">
+                            <i class="fas fa-arrow-right mr-2"></i>Shipper → Seagull
+                        </h3>
+                        <p class="text-gray-600 mb-4">Shipper's tech team builds API connections to push data to Seagull platform</p>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Requires shipper's tech team involvement</li>
+                            <li>• Real-time data synchronization</li>
+                            <li>• Full control over data flow</li>
+                        </ul>
+                    </div>
+                    <div class="border border-gray-200 rounded-lg p-6">
+                        <h3 class="font-semibold text-lg mb-3 text-purple-600">
+                            <i class="fas fa-arrow-left mr-2"></i>Seagull → Shipper
+                        </h3>
+                        <p class="text-gray-600 mb-4">Seagull platform pulls data from shipper's system automatically</p>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Seagull handles the integration</li>
+                            <li>• Scheduled data synchronization</li>
+                            <li>• Minimal shipper tech involvement</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="font-semibold text-lg mb-4">Platform Features</h3>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-medium mb-2 text-seagull-blue">Document Processing</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• Automatic invoice generation</li>
+                                <li>• Bill of lading creation</li>
+                                <li>• PDF/Excel data extraction</li>
+                                <li>• Document comparison & validation</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-medium mb-2 text-seagull-blue">Client Portal</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• Secure document upload</li>
+                                <li>• Real-time shipment tracking</li>
+                                <li>• Task management system</li>
+                                <li>• Integration capabilities</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Client Portal View -->
+        <div id="clientPortalView" class="p-6 hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-semibold text-gray-800">Client Portal</h1>
+                <button id="backFromPortalBtn" class="bg-seagull-blue text-white px-4 py-2 rounded-lg">
+                    <i class="fas fa-arrow-left mr-2"></i>Back
+                </button>
+            </div>
+
+            <div class="grid grid-cols-3 gap-6">
+                <!-- Upload Documents -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="text-center">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-seagull-blue mb-4"></i>
+                        <h3 class="font-semibold text-lg mb-2">Upload Documents</h3>
+                        <p class="text-gray-600 text-sm mb-4">Upload your shipping documents for processing</p>
+                        <button class="bg-seagull-blue text-white px-4 py-2 rounded-lg w-full">
+                            Upload Files
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Track Shipments -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="text-center">
+                        <i class="fas fa-map-marker-alt text-4xl text-green-600 mb-4"></i>
+                        <h3 class="font-semibold text-lg mb-2">Track Shipments</h3>
+                        <p class="text-gray-600 text-sm mb-4">Monitor your shipments in real-time</p>
+                        <button class="bg-green-600 text-white px-4 py-2 rounded-lg w-full">
+                            View Tracking
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Manage Tasks -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="text-center">
+                        <i class="fas fa-tasks text-4xl text-purple-600 mb-4"></i>
+                        <h3 class="font-semibold text-lg mb-2">Manage Tasks</h3>
+                        <p class="text-gray-600 text-sm mb-4">ClickUp-style task management</p>
+                        <button class="bg-purple-600 text-white px-4 py-2 rounded-lg w-full">
+                            Open Tasks
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="mt-8 bg-white rounded-lg shadow p-6">
+                <h3 class="font-semibold text-lg mb-4">Recent Activity</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                        <i class="fas fa-file-upload text-blue-500"></i>
+                        <div>
+                            <p class="font-medium">Document uploaded</p>
+                            <p class="text-sm text-gray-600">Invoice_12345.pdf - 2 hours ago</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <div>
+                            <p class="font-medium">Shipment processed</p>
+                            <p class="text-sm text-gray-600">Shipment #12345 - 4 hours ago</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                        <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                        <div>
+                            <p class="font-medium">Document needs review</p>
+                            <p class="text-sm text-gray-600">BOL_12346.pdf - 6 hours ago</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carrier View -->
+        <div id="carrierView" class="p-6 hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-semibold text-gray-800">CARRIER MANAGEMENT</h1>
+                <button class="bg-seagull-blue text-white px-4 py-2 rounded-lg">
+                    <i class="fas fa-plus mr-2"></i>Add New Carrier
+                </button>
+            </div>
+
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <table class="w-full">
+                    <thead class="bg-seagull-blue text-white">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Carrier Name</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Contact</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Routes</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Status</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium">Whale LTD</td>
+                            <td class="px-6 py-4 text-sm">contact@whale.com<br><span class="text-gray-500">+1 (555) 123-4567</span></td>
+                            <td class="px-6 py-4 text-sm">US West Coast</td>
+                            <td class="px-6 py-4 text-sm">
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">ACTIVE</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm">
+                                <button class="text-seagull-blue hover:text-seagull-light mr-2">Edit</button>
+                                <button class="text-red-600 hover:text-red-800">Delete</button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium">Ocean Express</td>
+                            <td class="px-6 py-4 text-sm">info@oceanexpress.com<br><span class="text-gray-500">+1 (555) 987-6543</span></td>
+                            <td class="px-6 py-4 text-sm">Trans-Pacific</td>
+                            <td class="px-6 py-4 text-sm">
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">ACTIVE</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm">
+                                <button class="text-seagull-blue hover:text-seagull-light mr-2">Edit</button>
+                                <button class="text-red-600 hover:text-red-800">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Consignees View -->
+        <div id="consigneesView" class="p-6 hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-semibold text-gray-800">CONSIGNEES</h1>
+                <button class="bg-seagull-blue text-white px-4 py-2 rounded-lg">
+                    <i class="fas fa-plus mr-2"></i>Add New Consignee
+                </button>
+            </div>
+
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <table class="w-full">
+                    <thead class="bg-seagull-blue text-white">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Company Name</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Contact Person</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Location</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Active Shipments</th>
+                            <th class="px-6 py-3 text-left text-sm font-medium">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium">Chelan Fresh</td>
+                            <td class="px-6 py-4 text-sm">John Merit<br><span class="text-gray-500">john@chelanfresh.com</span></td>
+                            <td class="px-6 py-4 text-sm">Los Angeles, CA</td>
+                            <td class="px-6 py-4 text-sm">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">3 Active</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm">
+                                <button class="text-seagull-blue hover:text-seagull-light mr-2">View</button>
+                                <button class="text-gray-600 hover:text-gray-800">Edit</button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium">Pacific Imports</td>
+                            <td class="px-6 py-4 text-sm">Sarah Johnson<br><span class="text-gray-500">sarah@pacificimports.com</span></td>
+                            <td class="px-6 py-4 text-sm">Long Beach, CA</td>
+                            <td class="px-6 py-4 text-sm">
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">1 Active</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm">
+                                <button class="text-seagull-blue hover:text-seagull-light mr-2">View</button>
+                                <button class="text-gray-600 hover:text-gray-800">Edit</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Settings View -->
+        <div id="settingsView" class="p-6 hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-semibold text-gray-800">SETTINGS</h1>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- General Settings -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">General Settings</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                            <input type="text" value="Seagull Logistics" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Default Currency</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                <option>USD</option>
+                                <option>EUR</option>
+                                <option>GBP</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Time Zone</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                <option>Pacific Time (PT)</option>
+                                <option>Eastern Time (ET)</option>
+                                <option>Central Time (CT)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Settings -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">API Configuration</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">API Endpoint</label>
+                            <input type="text" value="https://api.seagull.com/v1" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
+                            <input type="password" value="sk_live_..." class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="apiEnabled" class="mr-2">
+                            <label for="apiEnabled" class="text-sm text-gray-700">Enable API Integration</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document Settings -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">Document Processing</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="autoProcess" class="mr-2" checked>
+                            <label for="autoProcess" class="text-sm text-gray-700">Auto-process uploaded documents</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="aiEnhanced" class="mr-2" checked>
+                            <label for="aiEnhanced" class="text-sm text-gray-700">AI-enhanced recognition</label>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Recognition Confidence Threshold</label>
+                            <input type="range" min="50" max="100" value="85" class="w-full">
+                            <div class="text-sm text-gray-500 mt-1">85%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">Notifications</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="emailNotif" class="mr-2" checked>
+                            <label for="emailNotif" class="text-sm text-gray-700">Email notifications</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="smsNotif" class="mr-2">
+                            <label for="smsNotif" class="text-sm text-gray-700">SMS notifications</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="statusUpdates" class="mr-2" checked>
+                            <label for="statusUpdates" class="text-sm text-gray-700">Shipment status updates</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button class="bg-seagull-blue text-white px-6 py-2 rounded-lg">
+                    <i class="fas fa-save mr-2"></i>Save Settings
+                </button>
+            </div>
+        </div>
+
+        <!-- Added document preview modal -->
+        <!-- Document Preview Modal -->
+        <div id="documentPreviewModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+                <div class="flex justify-between items-center p-4 border-b">
+                    <h3 class="text-lg font-semibold">Document Preview</h3>
+                    <button id="closePreviewModal" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="p-4 overflow-y-auto max-h-[80vh]">
+                    <div id="documentPreviewContent" class="text-center">
+                        <!-- Document content will be loaded here -->
+                        <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8">
+                            <i class="fas fa-file-alt text-4xl text-gray-400 mb-4"></i>
+                            <p class="text-gray-600">Select a document to preview</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center p-4 border-t bg-gray-50">
+                    <div class="flex space-x-2">
+                        <button id="downloadDoc" class="bg-seagull-blue text-white px-4 py-2 rounded-lg">
+                            <i class="fas fa-download mr-2"></i>Download
+                        </button>
+                        <button id="printDoc" class="bg-gray-600 text-white px-4 py-2 rounded-lg">
+                            <i class="fas fa-print mr-2"></i>Print
+                        </button>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        <span id="docInfo">No document selected</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
